@@ -20,7 +20,7 @@ async function main() {
       },
       (payload) => {
         console.log(payload.eventType)
-        process.exit(1)
+        process.exit(2)
       }
     )
     .subscribe()
@@ -42,9 +42,14 @@ async function main() {
 
       console.log(`New message from ${message.senderAddress}: ${message.content}`);
 
+                        console.log({
+                                owner_addr: row.address,
+                                payload: { message: message.content },
+                                user_data: { address: message.senderAddress }
+                        })
 
       await supabase.rpc('insert_log_from_project', {
-        owner_addr: row.token_address,
+        owner_addr: row.address,
         payload: { message: message.content },
         user_data: { address: message.senderAddress }
       })
