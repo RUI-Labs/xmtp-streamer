@@ -52,7 +52,7 @@ async function main() {
         await message.conversation.send(message.content.slice(5))
       }
 
-      if (message.content.startsWith('campaign:')) {
+      if (message.content && message.content.startsWith('campaign:')) {
 
         const [_, campaignId] = message.content.split(':')
         const campaign = await supabase.from('campaigns').select(`*, project:projects(*)`).eq('id', campaignId).single().then(res => res.data)
@@ -61,7 +61,7 @@ async function main() {
           project: campaign.project.token_name,
           payload: {
             message: message.content,
-            campaign_id: campaignId,
+            campaign: campaignId,
             token_address: campaign.project.token_address
           },
           name: "reply",
