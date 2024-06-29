@@ -52,11 +52,26 @@ async function main() {
         await message.conversation.send(message.content.slice(5))
       }
 
-      await supabase.rpc('insert_log_from_project', {
-        owner_addr: row.address.toLowerCase(),
-        payload: { message: message.content },
-        user_data: { address: message.senderAddress.toLowerCase() }
-      })
+      if (message.content.startsWith('campaign:')) {
+
+        const [_, campaignId] = message.content.split(':')
+        const campaign = await supabase.from('campaigns').select(`*, project:projects(*)`).eq('id', campaignId).single().then(res => res.data)
+
+        await supabase.from('logs').insert({
+          project: campaign.project.token_name,
+          payload: {
+            message: message.content,
+            campaign_id: campaignId,
+            token_address: campaign.project.token_address
+          },
+          name: "reply",
+          user_data: { address: message.senderAddress.toLowerCase() },
+        })
+        .select()
+        .single()
+        .then(res => console.log(res.data))
+      }
+
     }
   }))
 
