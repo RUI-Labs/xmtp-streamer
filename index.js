@@ -42,16 +42,20 @@ async function main() {
 
       console.log(`New message from ${message.senderAddress}: ${message.content}`);
 
-                        console.log({
-                                owner_addr: row.address,
-                                payload: { message: message.content },
-                                user_data: { address: message.senderAddress }
-                        })
-
-      await supabase.rpc('insert_log_from_project', {
+      console.log({
         owner_addr: row.address,
         payload: { message: message.content },
         user_data: { address: message.senderAddress }
+      })
+
+      if (message.content && message.content.startsWith('echo')) {
+        await message.conversation.send(message.content.slice(5))
+      }
+
+      await supabase.rpc('insert_log_from_project', {
+        owner_addr: row.address.toLowerCase(),
+        payload: { message: message.content },
+        user_data: { address: message.senderAddress.toLowerCase() }
       })
     }
   }))
@@ -73,4 +77,3 @@ if (cluster.isPrimary) {
   console.log('worker')
   await main()
 }
-

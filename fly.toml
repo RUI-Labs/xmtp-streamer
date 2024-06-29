@@ -9,6 +9,5 @@ primary_region = 'sin'
 [build]
 
 [[vm]]
+  size = "shared-cpu-2x"
   memory = '1gb'
-  cpu_kind = 'shared'
-  cpus = 2
