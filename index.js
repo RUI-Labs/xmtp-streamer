@@ -57,6 +57,12 @@ async function main() {
         const [_, campaignId] = message.content.split(':')
         const campaign = await supabase.from('campaigns').select(`*, project:projects(*)`).eq('id', campaignId).single().then(res => res.data)
 
+        const wallet = await supabase.from('contact_books')
+        .select('wallet_address')
+        .eq('xmtp_address', message.senderAddress.toLowerCase())
+        .single()
+        .then(res => res.data?.wallet_address || message.senderAddress)
+
         await supabase.from('logs').insert({
           project: campaign.project.token_name,
           payload: {
@@ -65,7 +71,7 @@ async function main() {
             token_address: campaign.project.token_address
           },
           name: "reply",
-          user_data: { address: message.senderAddress.toLowerCase() },
+          user_data: { address: wallet.toLowerCase() },
         })
         .select()
         .single()

@@ -2,26 +2,17 @@
 import supabase from "./supabase.js";
 
 async function main(message) {
-  if (message.content.startsWith('campaign:')) {
+        const wallet = await supabase.from('contact_books')
+        .select('wallet_address')
+        .eq('xmtp_address', message.senderAddress.toLowerCase())
+        .single()
+        .then(res => res.data?.wallet_address || message.senderAddress)
 
-    const [_, campaignId] = message.content.split(':')
-    const campaign = await supabase.from('campaigns').select(`*, project:projects(*)`).eq('id', campaignId).single().then(res => res.data)
-
-    await supabase.from('logs').insert({
-      project: campaign.project.token_name,
-      payload: {
-        message: message.content,
-        campaign_id: campaignId,
-        token_address: campaign.project.token_address
-      },
-      name: "reply",
-      user_data: { address: message.senderAddress.toLowerCase() },
-    }).select().single().then(res => console.log(res.data))
-  }
+        console.log(wallet)
 }
 
 
 main({
   content: "campaign:13",
-  senderAddress: "0x19951284394050C4C836534999150cF19E924eFC"
+  senderAddress:"0x5f2c6ab93333e67166d848c71f6b9a79cf77821" 
 })
